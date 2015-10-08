@@ -2,7 +2,7 @@ import numpy as np
 import random
 from Experience import Experience
 
-class DataStorage:
+class ReplayMemory:
     # Numpy array implementation
     def __init__(self):
         # Create an empty numpy array with 2000000 elements
@@ -50,7 +50,7 @@ class DataStorage:
 
 if __name__ == "__main__":
     # Perform tests
-    ds = DataStorage()
+    rm = ReplayMemory()
     for x in range(0,30000000):
         y = Experience(x, x, x, x)
         ds.store(y)
