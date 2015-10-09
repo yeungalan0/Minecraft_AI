@@ -72,7 +72,8 @@ Run N episodes (games run until game over or fixed time limit (50million frames 
   * The instructions say to use python 2.7 or 3.3. I've used 2.7. 
   * The instructions aren't clear but you need the dev versions of `protobuf`, `glog`, `gflags`, `hdf5`, `leveldb`, `snappy`, and `lmdb`. Caffe needs to access the header files. 
   * I used OpenBLAS since they said it may offer a speedup. In the Makefile.config make sure you change `BLAS=atlas` to `BLAS=open`.
-  * To build the python bindings you'll have to run `make pycaffe`. (using `make [target] -j4` will speed things up a bit). If you get an error that says `Python.h` not found update the PYTHON_INCLUDE variable to also have `/usr/include/python2.7`.
+  * Build Caffe with `make all -j4`, `make test -j4`, `make runtest`. (Using `make [target] -j4` will compile with 4 threads to speed things up a bit).
+  * To build the python bindings you'll have to run `make pycaffe`. If you get an error that says `Python.h` not found update the PYTHON_INCLUDE variable to also have `/usr/include/python2.7`.
   * Set your PYTHON_PATH to point to the caffe python direction `PYTHONPATH=/path/to/caffe/python:$PYTHONPATH`. You could do this in the .bashrc file and then source it. 
   * Try the examples and let me know if you have questions.
 
