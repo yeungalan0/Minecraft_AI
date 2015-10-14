@@ -38,7 +38,10 @@ class ReplayMemory:
 
     def get_random(self, LEARNING_SAMPLE_SIZE):
         # TODO: Consider when this occurs and if the array is near empty...
-        return random.sample(self.storage, LEARNING_SAMPLE_SIZE)
+        picked = []
+        for x in range(LEARNING_SAMPLE_SIZE):
+            picked.append(self.storage[random.randint(0, self.index)])
+        return picked
 
     def print_storage(self, range_lower = None, range_upper = None):
         # For testing purposes
@@ -49,8 +52,8 @@ class ReplayMemory:
 
 if __name__ == "__main__":
     # Perform tests
-    rm = ReplayMemory()
-    for x in range(0,30000000):
+    ds = ReplayMemory()
+    for x in range(0,3):
         y = Experience(x, x, x, x)
         ds.store(y)
     ds.print_storage(0, 4)

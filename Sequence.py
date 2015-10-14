@@ -53,7 +53,13 @@ class Sequence:
         new_seq.setElements(new_frames_actions)
         
         return new_seq
-        
+
+    def toCNNInput(self):
+        frames = []
+        for x in range(0, len(self), 2):
+            frames += self.frames_actions[x].toCNNInput()
+        return frames
+            
     def isEmpty(self):
         return len(self) == 0
     

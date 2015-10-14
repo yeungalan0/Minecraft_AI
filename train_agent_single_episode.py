@@ -9,7 +9,7 @@ NUMBER_GAMES = 3
 MAX_FRAMES_PER_GAME = 10000
 
 # Train an agent for a single episode
-def trainEpisode(agent_filename="myagent.net", episode_number=1):
+def trainEpisode(agent_filename="", episode_number=1):
     print "RUNNING EPISODE #%d" % episode_number
 
     # Load the existing agent as a CNNPlayer

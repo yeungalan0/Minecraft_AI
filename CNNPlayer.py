@@ -29,7 +29,7 @@ class CNNPlayer(Player):
         # Initialize the convolutional neural network
         self.network = MinecraftNet()   #initCNN(CNN_PARAMS)
 
-        if agent_filepath!= '':
+        if agent_filepath != "":
             self.network.load_model(agent_filepath)
             
         self.cnn_action_map = self.initActionMap()
@@ -47,7 +47,7 @@ class CNNPlayer(Player):
         
         # for now do a hack to populate this map with all the same actions
         for i in range(CNN_PARAMS["output_size"]):
-            actions.append(Action(False, 0.0, 0.25, 1, 0))
+            actions.append(Action.Action(False, 0.0, 0.25, 1, 0))
         
         return actions
     
@@ -71,13 +71,13 @@ class CNNPlayer(Player):
         
     # Train the agent's CNN on a minibatch of Experiences    
     def trainMinibatch(self):
-        experiences = replay_memory.get_random(LEARNING_SAMPLE_SIZE=32)
+        experiences = self.replay_memory.get_random(LEARNING_SAMPLE_SIZE=32)
         dataset = []
         for experience in experiences:
-             target = experience.reward + GAMMA * self.sequenceForward(experience.seq2)
-             dataset.append((experience.seq1, target))
+             target = experience.curr_reward + GAMMA * self.sequenceForward(experience.curr_seq)
+             dataset.append((experience.prev_seq, target))
             
-        #Do gradient descent to minimize   (target - network.runInput(experience.seq1)) ^ 2
+        #Do gradient descent to minimize   (target - network.runInput(experience.prev_seq)) ^ 2
         self.network.set_input_data(dataset)
         self.network.train(1) # train for a single iteration
 
@@ -108,7 +108,7 @@ class CNNPlayer(Player):
         # Add on the current frame to the current sequence
         self.current_seq = self.previous_seq.createNewSequence(processed_frame)
 
-        if r < EPSILON:
+        if r < EPSILON or not self.current_seq.isFull():
             curr_action = Action.getRandomAction()
         else:
             # Run the CNN and pick the max output action

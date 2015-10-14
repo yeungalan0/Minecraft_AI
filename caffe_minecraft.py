@@ -1,5 +1,6 @@
 from __future__ import print_function
 import caffe
+import numpy as np
 from caffe import layers as L, params as P, to_proto
 from caffe.proto import caffe_pb2
 
@@ -27,8 +28,12 @@ class MinecraftNet:
 
 
     def forward(self, data):
-        self.solver.net.blobs['data'].data[...] = data
-        out = self.solver.net.forward()
+        data = np.array(data)
+        data.reshape((84, 336))
+        data_input = data[np.newaxis, np.newaxis, :, :]
+        self.solver.test_nets[0].blobs['data'].data[...] = data_input
+        # out = self.solver.net.forward()
+        out = self.solver.test_nets[0].forward()
         return out
         #output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
 
