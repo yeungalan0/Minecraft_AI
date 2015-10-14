@@ -13,19 +13,28 @@ class MinecraftNet:
         caffe.set_mode_cpu()
         
         self.solver = caffe.SGDSolver('minecraft_solver.prototxt')
-        print([(k, v.data.shape) for k, v in self.solver.net.blobs.items()])
+        print (self.solver.net.blobs['data'].shape[0])
+        #print([(k, v.data.shape) for k, v in self.solver.net.blobs.items()])
+
+
+    def load_model(self, path_to_model):
+        #print ("loading model: ", path_to_model)
+        self.solver.net.copy_from(path_to_model)
         
-        
-    def train(self):
-        #print(self.solver.net)
-        #print(self.solver.net.forward())
-        self.solver.step(500)
+
+    def train(self, itrs):
+        self.solver.step(itrs)
+
+
+    def forward(self, data):
+        self.solver.net.blobs['data'].data[...] = data
+        out = self.solver.net.forward()
+        return out
+        #output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
+
 
     def set_input_data(self, data):
         self.solver.net.set_input_arrays(data)
-
-
-
         
         
     # helper function for common structures
@@ -34,12 +43,15 @@ class MinecraftNet:
                                     num_output=nout, pad=pad, group=group)
         return conv, L.ReLU(conv, in_place=True)
 
+
     def ip_relu(self, bottom, nout):
         ip = L.InnerProduct(bottom, num_output=nout)
         return ip, L.ReLU(ip, in_place=True)
 
+
     def max_pool(self, bottom, ks, stride=1):
         return L.Pooling(bottom, pool=P.Pooling.MAX, kernel_size=ks, stride=stride)
+
 
     def caffenet(self, lmdb, batch_size=32, include_acc=False):
         print ("building net")
@@ -60,6 +72,7 @@ class MinecraftNet:
         else:
             return to_proto(loss)
 
+
     def make_nets(self):
         with open('train.prototxt', 'w') as f:
             f.write(str(self.caffenet('train_lmdb')))
@@ -72,10 +85,12 @@ class MinecraftNet:
         test_net = caffe.Net("test.prototxt", caffe.TEST)
 
         return train_net, test_net
+
         
 
 if __name__ == '__main__':
     mnet = MinecraftNet()
-    mnet.train()
+    #mnet.load_model('snapshots/minecraft/snapshots_iter_5.caffemodel')
+    #mnet.train(5)
     
     
