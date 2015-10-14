@@ -6,7 +6,6 @@ class ReplayMemory:
     # Numpy array implementation
     def __init__(self):
         # Create an empty numpy array with 2000000 elements
-        # TODO: Change datatype
         self.size = 2000000
         self.storage = np.empty((self.size,), dtype=object)
         self.index = 0
@@ -37,9 +36,9 @@ class ReplayMemory:
     #     else:
     #         self.storage.append(data_tuple)
 
-    def get_random(self, number):
+    def get_random(self, LEARNING_SAMPLE_SIZE):
         # TODO: Consider when this occurs and if the array is near empty...
-        return random.sample(self.storage, number)
+        return random.sample(self.storage, LEARNING_SAMPLE_SIZE)
 
     def print_storage(self, range_lower = None, range_upper = None):
         # For testing purposes

@@ -11,7 +11,7 @@ def getRandomAction():
     
     return a
 
-class Action:
+class Action(object):
 
     def __init__(self):
         
@@ -38,7 +38,7 @@ class Action:
  
 
     def __str__(self):
-        return "%.4f %.4f %d %d" % (self.updown_rotation, self.leftright_rotation, self.forwardbackward_walk, self.leftright_walk)
+        return "Action: %.4f %.4f %d %d" % (self.updown_rotation, self.leftright_rotation, self.forwardbackward_walk, self.leftright_walk)
 
 
 

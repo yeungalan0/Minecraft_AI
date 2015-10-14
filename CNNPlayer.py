@@ -9,7 +9,7 @@ import Action
 from Player import Player
 from Sequence import Sequence
 from Experience import Experience
-
+from ReplayMemory import ReplayMemory
 
 MEMORY_SIZE = 1000000
 CNN_PARAMS = {"input_size":25000, "output_size":64}
@@ -24,8 +24,7 @@ class CNNPlayer(Player):
         Player.__init__(self)
 
         # Create the experience memory database
-        #self.replay_memory = initReplayMemory(MEMORY_SIZE)
-        self.replay_memory = []
+        self.replay_memory = ReplayMemory()
         
         # Initialize the convolutional neural network
         if agent_filename == '':
@@ -50,7 +49,7 @@ class CNNPlayer(Player):
     def trainMinibatch(self):
         pass
         # Now spend time learning from past experiences
-        # experiences = replay_memory.getRandomExperiences(LEARNING_SAMPLE_SIZE=32)
+        # experiences = replay_memory.get_random(LEARNING_SAMPLE_SIZE=32)
         # 
         # for experience in experiences:
         #     target = experience.reward + GAMMA * network.pickBestAction(experience.seq2)
@@ -61,7 +60,6 @@ class CNNPlayer(Player):
     # Receive the agent's reward from its previous Action along with
     # a Frame screenshot of the current game state
     def getDecision(self, current_frame):
-        
         #if self.previous_reward != 0:
         #    print "GOT POINTS:", self.previous_reward
         self.total_score += self.previous_reward
@@ -73,10 +71,13 @@ class CNNPlayer(Player):
         r = random.random()
                     
         # First frame of game
+        # print("PREVIOUS SEQUENCE: " + str(self.previous_seq) + "\n")
         if self.previous_seq == None:
             self.previous_seq = Sequence(processed_frame)
+            # print("FRAME SEQUENCE: {0}".format(self.previous_seq))
             curr_action = Action.getRandomAction()
             self.previous_seq = self.previous_seq.createNewSequence(curr_action)
+            # print("FIRST SEQUENCE: {0}".format(self.previous_seq))
             return
             
         # Add on the current frame to the current sequence
@@ -98,7 +99,8 @@ class CNNPlayer(Player):
             
         # The first time through there is no previous Sequence, so just add the first Frame
         new_experience = Experience(self.previous_seq, self.previous_action, self.previous_reward, self.current_seq)
-        self.replay_memory.append(new_experience)
+        self.replay_memory.store(new_experience)
+        # print(self.replay_memory.print_storage(0, 100))
         self.previous_seq = self.current_seq
 
         if self.game.world_counter > STARTING_FRAMES:

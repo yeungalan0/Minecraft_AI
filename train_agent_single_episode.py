@@ -32,7 +32,10 @@ def trainEpisode(agent_filename="myagent.net", episode_number=1):
 
 
 if __name__ == "__main__":
-    trainEpisode(sys.argv[1], int(sys.argv[2]))
+    if len(sys.argv) > 2:
+        trainEpisode(sys.argv[1], int(sys.argv[2]))
+    else:        
+        trainEpisode()
 
         
 
