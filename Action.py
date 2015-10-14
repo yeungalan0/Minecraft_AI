@@ -13,28 +13,22 @@ def getRandomAction():
 
 class Action(object):
 
-    def __init__(self):
+    def __init__(self, break_block=False, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=0):
         
         # Pressing left button to break block
-        self.break_block = False
-        
-        # Pressing right button to place a new block
-        self.place_block = False
-        
-        # Jumping
-        self.jumping = False
+        self.break_block = break_block
         
         # Looking up or down
-        self.updown_rotation = 0.0
+        self.updown_rotation = updown_rot
         
         # Looking right or left
-        self.leftright_rotation = 0.0
+        self.leftright_rotation = leftright_rot
         
-        # Walking forward or backward
-        self.forwardbackward_walk = 0  # -1 is backward, 1 is forward, 0 is neither
+        # Walking forward or backward (-1 is backward, 1 is forward, 0 is neither)
+        self.forwardbackward_walk = forwardback
         
         # Strafing left or right
-        self.leftright_walk = 0  # -1 is backward, 1 is forward, 0 is neither
+        self.leftright_walk = leftright
  
 
     def __str__(self):

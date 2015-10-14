@@ -4,12 +4,12 @@ import math
 import random
 
 from game_globals import *
-
 import Action
 from Player import Player
 from Sequence import Sequence
 from Experience import Experience
 from ReplayMemory import ReplayMemory
+from caffe_minecraft import MinecraftNet
 
 MEMORY_SIZE = 1000000
 CNN_PARAMS = {"input_size":25000, "output_size":64}
@@ -20,42 +20,67 @@ FRAMES_PER_SEQ = 4
 
 class CNNPlayer(Player):
 
-    def __init__(self, agent_filename=""):
+    def __init__(self, agent_filepath=""):
         Player.__init__(self)
 
         # Create the experience memory database
         self.replay_memory = ReplayMemory()
         
         # Initialize the convolutional neural network
-        if agent_filename == '':
-            pass
-            #self.network = initCNN(CNN_PARAMS)
-        else:
-            pass
-            #self.network = self.loadNetwork(agent_filename)
+        self.network = MinecraftNet()   #initCNN(CNN_PARAMS)
+
+        if agent_filepath!= '':
+            self.network.load_model(agent_filepath)
+            
+        self.cnn_action_map = self.initActionMap()
         
         # The current and previous sequences of game frames and actions
         self.current_seq = None
         self.previous_seq = None
-        
         self.previous_action = None
         
-    # Load an existing CNN from a given file
-    def loadNetwork(self, filename):
-        pass
+        
+    # Create a map of all the CNN's legal actions
+    # We will be able to pick the best move from this list based on the CNN's output
+    def initActionMap(self):
+        actions = []
+        
+        # for now do a hack to populate this map with all the same actions
+        for i in range(CNN_PARAMS["output_size"]):
+            actions.append(Action(False, 0.0, 0.25, 1, 0))
+        
+        return actions
     
     
+    def sequenceForward(self, seq):
+        cnn_input = seq.toCNNInput()
+        return self.network.forward(cnn_input)
+    
+    def pickBestAction(self, seq):
+        cnn_outputs = self.sequenceForward(seq)
+        
+        max_output_index = 0
+        max_output = cnn_outputs[0]
+        for i in range(len(cnn_outputs)):
+            if cnn_outputs[i] > max_output:
+                max_output = cnn_outputs[i]
+                max_output_index = i
+                
+        return self.cnn_action_map[max_output_index]
+        
+        
     # Train the agent's CNN on a minibatch of Experiences    
     def trainMinibatch(self):
-        pass
-        # Now spend time learning from past experiences
-        # experiences = replay_memory.get_random(LEARNING_SAMPLE_SIZE=32)
-        # 
-        # for experience in experiences:
-        #     target = experience.reward + GAMMA * network.pickBestAction(experience.seq2)
+        experiences = replay_memory.get_random(LEARNING_SAMPLE_SIZE=32)
+        dataset = []
+        for experience in experiences:
+             target = experience.reward + GAMMA * self.sequenceForward(experience.seq2)
+             dataset.append((experience.seq1, target))
             
-            #Do gradient descent to minimize   (target - network.runInput(experience.seq1)) ^ 2
-        
+        #Do gradient descent to minimize   (target - network.runInput(experience.seq1)) ^ 2
+        self.network.set_input_data(dataset)
+        self.network.train(1) # train for a single iteration
+
     
     # Receive the agent's reward from its previous Action along with
     # a Frame screenshot of the current game state
@@ -89,7 +114,7 @@ class CNNPlayer(Player):
             # Run the CNN and pick the max output action
             # This will be self.network.pickBestAction(self.current_seq)
             # but it is random for now
-            curr_action = Action.getRandomAction()
+            curr_action = self.pickBestAction(self.current_seq)
             
         # Finally, add the chosen action to the current sequence
         self.current_seq = self.current_seq.createNewSequence(curr_action)
