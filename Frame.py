@@ -25,7 +25,7 @@ class Frame:
 
     # Return a 1-D list of grayscale pixel values for use in the CNN
     # If no other processing is required (not sure yet!) then just return the raw array of pixels
-    def getCNNVector(self):
+    def toCNNInput(self):
         return self.pixels
 
 
