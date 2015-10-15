@@ -40,7 +40,7 @@ class ReplayMemory:
         # TODO: Consider when this occurs and if the array is near empty...
         picked = []
         for x in range(LEARNING_SAMPLE_SIZE):
-            picked.append(self.storage[random.randint(0, self.index)])
+            picked.append(self.storage[random.randint(0, self.index - 1)])
         return picked
 
     def print_storage(self, range_lower = None, range_upper = None):
