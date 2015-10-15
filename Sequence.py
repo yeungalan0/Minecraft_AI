@@ -55,11 +55,12 @@ class Sequence:
         return new_seq
 
     def toCNNInput(self):
-        frames = []
-        for x in range(0, len(self), 2):
-            frames += self.frames_actions[x].toCNNInput()
-        return frames
-            
+        #frames = []
+        #for x in range(0, len(self), 2):
+        #    frames += self.frames_actions[x].toCNNInput()
+        #return frames
+        return self.frames_actions[0].toCNNInput()
+           
     def isEmpty(self):
         return len(self) == 0
     

@@ -14,7 +14,7 @@ layer {
     batch_size: 32
     channels: 1
     height: 84
-    width: 336
+    width: 84
   }
 }
 layer {
@@ -32,7 +32,7 @@ layer {
     batch_size: 1
     channels: 1
     height: 84
-    width: 336
+    width: 84
   }
 }
 layer {

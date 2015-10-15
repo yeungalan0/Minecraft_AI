@@ -12,12 +12,18 @@ class MinecraftNet:
     def __init__(self):
         #self.train_net, self.test_net = self.make_nets()
         caffe.set_mode_cpu()
-        
         self.solver = caffe.SGDSolver('minecraft_solver.prototxt')
-        print (self.solver.net.blobs['data'].shape[0])
+        self.default_data_init()
+        #print (self.solver.net.blobs['data'].shape[0])
         #print([(k, v.data.shape) for k, v in self.solver.net.blobs.items()])
 
 
+    def default_data_init(self):
+        inp = np.ones((32, 1, 84, 84), dtype=np.float32)
+        lab = np.ones((32,), dtype=np.float32)
+        self.set_input_data(inp, lab)
+        
+        
     def load_model(self, path_to_model):
         #print ("loading model: ", path_to_model)
         self.solver.net.copy_from(path_to_model)
@@ -29,8 +35,11 @@ class MinecraftNet:
 
     def forward(self, data):
         data = np.array(data)
-        data.reshape((84, 336))
-        data_input = data[np.newaxis, np.newaxis, :, :]
+        print ("data1: ", data.shape)
+        data = data.reshape((84, 84))
+        print ("data2: ", data.shape)
+        data_input = data[np.newaxis, np.newaxis, :]
+        print ("data input shape", data_input.shape)
         self.solver.test_nets[0].blobs['data'].data[...] = data_input
         # out = self.solver.net.forward()
         out = self.solver.test_nets[0].forward()
@@ -38,8 +47,8 @@ class MinecraftNet:
         #output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
 
 
-    def set_input_data(self, data):
-        self.solver.net.set_input_arrays(data)
+    def set_input_data(self, i, l):
+        self.solver.net.set_input_arrays(i, l)
         
         
     # helper function for common structures
