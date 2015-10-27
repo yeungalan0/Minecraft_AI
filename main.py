@@ -1,4 +1,5 @@
 import os
+import sys
 import math
 import random
 import time
@@ -13,6 +14,8 @@ from PIL import Image
 
 from Player import Player
 from CNNPlayer import CNNPlayer
+from DataGatheringPlayer import DataGatheringPlayer
+
 
 from Frame import Frame
 
@@ -389,13 +392,17 @@ class Window(pyglet.window.Window):
 
         """
         self.world_counter += 1
-        if self.world_counter % 1000 == 0:
+
+        if self.world_counter % 100 == 0:
             print "FRAME #" + str(self.world_counter)
 
         
         if self.world_counter >= self.max_frames:
+            print "Saving frame dataset"
+            self.player.saveDataset()
             print "Game Over!\tFINAL SCORE:", self.player.total_score
             pyglet.app.exit()
+            sys.exit(1)
 
         
         self.model.process_queue()
@@ -422,18 +429,22 @@ class Window(pyglet.window.Window):
             # Use GL_RGB for color and GL_LUMINANCE for grayscale!
             #glReadPixels(0, 0, self.width, self.height, GL_RGB, GL_UNSIGNED_BYTE, screenshot)
             glReadPixels(0, 0, self.width, self.height, GL_LUMINANCE, GL_UNSIGNED_BYTE, screenshot)
-            
+
+            im = Image.frombytes(mode="L", size=(WINDOW_SIZE, WINDOW_SIZE), data=screenshot)
+            im = im.transpose(Image.FLIP_TOP_BOTTOM)            
 
             # If you want to see the agent's view, then you can save a screenshot
             
-            #im = Image.fromstring(mode="L", size=(WINDOW_SIZE, WINDOW_SIZE), data=screenshot)
-            #im = im.transpose(Image.FLIP_TOP_BOTTOM)
-            #im.save('screenshots/test%d.png' % time.time())
+
+            # im.save('screenshots/test%d.png' % time.time())
+            # print("SAVED SCREENSHOT on frame #", self.world_counter)
+            # time.sleep(1)
+
             
             # Another way to save screenshots...might be slower or faster
-            # pyglet.image.get_buffer_manager().get_color_buffer().save('screenshots/test%d.png' % time.time())
+            #pyglet.image.get_buffer_manager().get_color_buffer().save('screenshots/test%d.png' % time.time())
             
-            frame = Frame(screenshot)
+            frame = Frame(im)
             
             self.player.getDecision(frame)
 
@@ -705,12 +716,13 @@ def main():
     window = Window(width=WINDOW_SIZE, height=WINDOW_SIZE, caption='MindCraft', resizable=True, vsync=False)
     
     #p = Player()
-    p = CNNPlayer()
+    #p = CNNPlayer()
+    p = DataGatheringPlayer()
     p.setGame(window)
     
     window.set_player(p)
     window.model.loadMap("maps/test.txt")
-    window.set_game_frame_limit(10000)
+    window.set_game_frame_limit(2000000)
 
     opengl_setup()
     pyglet.app.run()

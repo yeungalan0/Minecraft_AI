@@ -54,7 +54,7 @@ class Player:
         
         self.rewards = {
             "GRASS":1000,
-            "STONE":-10
+            "STONE":0
         }
         
         self.total_score = 0
@@ -202,7 +202,7 @@ class Player:
         
         # Initialize a new reward for this current action
         # There is a set cost of 1 for each move
-        reward = -1
+        reward = 0
         
         # Each part of the action might have a cost or reward
         # E.g. Moving might have an energy cost

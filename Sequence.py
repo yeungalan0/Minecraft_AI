@@ -13,7 +13,7 @@ class Sequence:
         # A list of frames and actions in the sequence
         self.frames_actions = []
         
-        if first_frame:
+        if first_frame != None:
             self.addElement(first_frame)
         
     def addElement(self, element):
@@ -59,7 +59,7 @@ class Sequence:
         #for x in range(0, len(self), 2):
         #    frames += self.frames_actions[x].toCNNInput()
         #return frames
-        return self.frames_actions[0].toCNNInput()
+        return self.frames_actions[0]#.toCNNInput()
            
     def isEmpty(self):
         return len(self) == 0

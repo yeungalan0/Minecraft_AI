@@ -1,44 +1,51 @@
 name: "testnet"
+
 layer {
-  name: "test"
+  name: "traininputs"
   type: "MemoryData"
   top: "data"
   top: "label"
-  include {
-    phase: TRAIN
-  }
-  transform_param {
-    scale: 0.00390625
-  }
-  memory_data_param {
-    batch_size: 32
-    channels: 1
-    height: 84
-    width: 84
-  }
-}
-layer {
-  name: "test"
-  type: "MemoryData"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    scale: 0.00390625
-  }
+
   memory_data_param {
     batch_size: 1
     channels: 1
-    height: 84
-    width: 84
+    height: 1
+    width: 7120  # 84*84 + 64...The last 64 are the target!!!!!!!
+  }
+  #include: { phase: TRAIN }
+}
+
+layer {
+  name: "slicer"
+  type: "Slice"
+  bottom: "data"
+  top: "input_data"
+  top: "label_data"
+  slice_param {
+    axis: 3
+    slice_point: 7056
   }
 }
+
+layer {
+  name: "reshape"
+  type: "Reshape"
+  bottom: "input_data"
+  top: "reshaped_data"
+  reshape_param {
+    shape {
+      dim: 0  # copy the dimension from below
+      dim: 0
+      dim: 84
+      dim: 84 
+    }
+  }
+}
+  
 layer {
   name: "conv1"
   type: "Convolution"
-  bottom: "data"
+  bottom: "reshaped_data"
   top: "conv1"
   param {
     lr_mult: 1
@@ -141,10 +148,28 @@ layer {
   bottom: "ip1"
   top: "ip2"
 }
+
+layer {
+  name: "reshape2"
+  type: "Reshape"
+  bottom: "ip2"
+  top: "final_output"
+  reshape_param {
+    shape {
+      dim: 0
+      dim: 1
+      dim: 1
+      dim: 64 
+    }
+  }
+  #include {phase: TRAIN}
+}
+
 layer {
   name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "ip2"
-  bottom: "label"
-  top: "loss"
+  type: "EuclideanLoss"
+  bottom: "final_output"
+  bottom: "label_data"
+  top: "loss_output"
 }
+

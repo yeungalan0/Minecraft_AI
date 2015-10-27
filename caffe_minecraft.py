@@ -5,15 +5,13 @@ from caffe import layers as L, params as P, to_proto
 from caffe.proto import caffe_pb2
 
 
-
 class MinecraftNet:
-
-
+    
     def __init__(self):
         #self.train_net, self.test_net = self.make_nets()
         caffe.set_mode_cpu()
         self.solver = caffe.SGDSolver('minecraft_solver.prototxt')
-        self.default_data_init()
+        #self.default_data_init()
         #print (self.solver.net.blobs['data'].shape[0])
         #print([(k, v.data.shape) for k, v in self.solver.net.blobs.items()])
 
@@ -30,10 +28,16 @@ class MinecraftNet:
         
 
     def train(self, itrs):
+        print("BEFORE STEP DATA:", self.solver.net.blobs['data'].data[...])
+        print("BEFORE STEP LABELS:", self.solver.net.blobs['label'].data[...])
+
         self.solver.step(itrs)
+        print("DONE")
+        print("AFTER STEP:", self.solver.net.blobs['label'].data[...])
 
 
-    def forward(self, data):
+
+    def forwardBACKUP(self, data):
         data = np.array(data)
         print ("data1: ", data.shape)
         data = data.reshape((84, 84))
@@ -47,8 +51,100 @@ class MinecraftNet:
         #output[it] = solver.test_nets[0].blobs['ip2'].data[:8]
 
 
-    def set_input_data(self, i, l):
-        self.solver.net.set_input_arrays(i, l)
+    def forwardbackup2(self, data):
+        data = np.array(data)
+        data = data.reshape((84,84))
+        self.solver.net.blobs['data'].data[...] = data
+
+        out = self.solver.net.forward()
+        #print("RESULT:", out)
+        just_array = self.solver.net.blobs['ip2'].data[...][0]  # HACK
+        print(just_array)
+        return just_array
+        
+        
+    def forward(self, data):
+        print("FORWARD DATA:", data)
+        self.set_input_data(data)
+        out = self.solver.net.forward()
+        forward_input = self.solver.net.blobs['data'].data[...]
+        print("FORWARD INPUT:", forward_input)
+        output_array = self.solver.net.blobs['final_output'].data[...][0]  # HACK
+        return output_array
+
+        #out = self.solver.test_nets[0].forward()
+        #print("RESULT:", out)
+        #just_array = self.solver.test_nets[0].blobs['final_output'].data[...][0]  # HACK
+        #print("FORWARD OUTPUT:", just_array)
+        #return just_array
+ 
+
+    def get_combined_array(self, orig_input, orig_labels):
+        # each orig_input[i].toCNNInput should already be a 1-D vector of length 7056
+        inputs = []
+        for i in range(len(orig_input)):
+            curr_input = np.array(orig_input[i].toCNNInput(), dtype=np.float32)
+            curr_input *= (1/255.)  # Scale separately so labels aren't scaled in Caffe
+            curr_input = np.append(curr_input, orig_labels[i])
+            inputs.append(curr_input)
+
+        combined_array = np.array(inputs, dtype=np.float32)
+        input_array = combined_array[:, np.newaxis, np.newaxis, :]
+        input_array = np.array(input_array, dtype=np.float32)
+        
+        print("COMBINED SHAPE:", input_array.shape)
+        return input_array
+
+
+
+    def set_input_data(self, inputs, labels=None):
+        
+        # If labels are provided, then assume inputs is 32 input patterns
+        if labels != [] and labels != None:
+            print("SETTING INPUT DATA *WITH* LABELS")
+            # We have to make fake labels since the real labels
+            # are stuck on the end of the inputs
+            fake_labels = np.array([[[[1]]]]*32, dtype=np.float32)
+            print("FAKE:", fake_labels.shape)
+        
+            # Append the labels on each of the input vectors
+            # Each pattern is size (1, 1, 1, 7120)  which is 84*84+64
+            input_array = self.get_combined_array(inputs, labels)
+            # input_array should be (32, 1, 1, 7120)
+            
+            print("SETTING DATA:", input_array, fake_labels)
+            
+            self.solver.net.set_input_arrays(input_array, fake_labels)
+            self.solver.test_nets[0].set_input_arrays(input_array, fake_labels)
+            
+            print("SET DATA:", self.solver.net.blobs['data'].data[...])
+            print("SET LABELS:", self.solver.net.blobs['label'].data[...])
+
+        else:
+            print("SETTING INPUT DATA *WITHOUT* LABELS")
+
+            # No labels provided, so caller just wants to forward
+            # something through the network.
+            # Make some a fake label on the end of the input
+            # so Caffe doesn't complain
+            # We have to make fake labels since the real labels
+            # are stuck on the end of the inputs
+            fake_labels = np.array([[[[1]]]], dtype=np.float32)
+            
+            unused_labels = np.array([[[[1]*64]]], dtype=np.float32)
+            input_array = np.array(inputs)
+            input_array *= (1/255.)  # Scale separately so labels aren't scaled in Caffe
+            input_array = np.append(input_array, unused_labels)
+            input_array = input_array[np.newaxis, np.newaxis, np.newaxis, :]
+
+            # input_array should be (1, 1, 1, 7120)
+            print(input_array)
+            print(fake_labels)
+            print(input_array.shape)
+            print(fake_labels.shape)
+            
+            self.solver.net.set_input_arrays(input_array, fake_labels)
+            self.solver.test_nets[0].set_input_arrays(input_array, fake_labels)
         
         
     # helper function for common structures

@@ -1,4 +1,6 @@
 
+import numpy as np
+
 class Frame(object):
 
     def __init__(self, screenshot):
@@ -26,7 +28,9 @@ class Frame(object):
     # Return a 1-D list of grayscale pixel values for use in the CNN
     # If no other processing is required (not sure yet!) then just return the raw array of pixels
     def toCNNInput(self):
-        return self.pixels
+        #one_dimensional = self.pixels.reshape()
+        return np.array(self.pixels, dtype=np.float32)
+        #return self.pixels
 
 
     def __str__(self):

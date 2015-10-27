@@ -3,9 +3,15 @@ import math
 
 
 # The width and height of the game window (always square)
-WINDOW_SIZE = 84
+WINDOW_SIZE = 32
+
+FEATURE_VECTOR_SIZE = 30
+
+OUTPUT_VECTOR_SIZE = 18
 
 TICKS_PER_SEC = 60
+
+TRAINING_BATCH_SIZE = 128
 
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16

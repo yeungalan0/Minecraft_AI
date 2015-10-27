@@ -4,10 +4,12 @@ import random
 def getRandomAction():
     a = Action()
     a.leftright_rotation = 1 - 2 * random.random()
-    a.updown_rotation = 1 - 2 * random.random()
+    #a.updown_rotation = 1 - 2 * random.random()
     a.forwardbackward_walk = random.choice([1, 0, -1])
-    a.leftright_walk = random.choice([1, 0, -1])
-    a.break_block = random.choice([True, False])
+    #a.leftright_walk = random.choice([1, 0, -1])
+    #a.break_block = random.choice([True, False])
+    a.break_block = random.choice([False, False])
+
     
     return a
 
@@ -29,6 +31,13 @@ class Action(object):
         
         # Strafing left or right
         self.leftright_walk = leftright
+ 
+    def __equals__(self, other):
+        return self.break_block == other.break_block and \
+                self.updown_rotation == other.updown_rotation and \
+                self.leftright_rotation == other.leftright_rotation and \
+                self.forwardbackward_walk == other.forwardbackward_walk and \
+                self.leftright_walk == other.leftright_walk
  
 
     def __str__(self):
