@@ -5,15 +5,32 @@ import math
 # The width and height of the game window (always square)
 WINDOW_SIZE = 32
 
+# The number of game frames before calling the agent's getDecision
+DECISION_FREQUENCY = 4
+
+# Number of intermediate features from the autoencoder
 FEATURE_VECTOR_SIZE = 30
 
+# Number of outputs in the reinforcement network
+# (This is the number of legal agent actions)
 OUTPUT_VECTOR_SIZE = 18
 
 TICKS_PER_SEC = 60
 
+# Number of Experiences to train on
 TRAINING_BATCH_SIZE = 128
 
+# How often (in getDecision calls) to start a minibatch of training
+BATCH_TRAINING_FREQUENCY = 16
+
+# Number of iterations of training per minibatch (we think DeepMind is 1)
+BATCH_TRAINING_ITERATIONS = 1
+
+# How often to print the simulation progress to the terminal
+WORLD_COUNTER_DISPLAY_FREQUENCY = 100
+
 REINFORCEMENT_PROTO = 'protos/reinforcement_solver.prototxt'
+REINFORCEMENT_MODEL = 'models/reinforcement/current.caffemodel'
 
 AUTOENCODER_PROTO = 'protos/autoencoder_solver.prototxt'
 AUTOENCODER_TEST_PROTO = 'protos/autoencoder_tester.prototxt'

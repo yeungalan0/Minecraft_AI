@@ -14,7 +14,7 @@ plt.rcParams['image.cmap'] = 'gray'
 
 WINDOW_SIZE = 32
 TEST_PROTO = '../protos/autoencoder_tester.prototxt'
-MODEL_FILE = '../models/autoencoder/autoencoder_model_iter_4000.caffemodel'
+MODEL_FILE = '../models/autoencoder/current.caffemodel'
 DATASET = '../datasets/dataset.hdf5'
 
 # take an array of shape (n, height, width) or (n, height, width, channels)

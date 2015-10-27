@@ -222,8 +222,7 @@ class Player:
                 reward += self.rewards[block_type]
 
         self.previous_reward = reward
-    
-    
+        
     def getDecision(self, frame):
         a = Action.getRandomAction()
         self.performAction(a)

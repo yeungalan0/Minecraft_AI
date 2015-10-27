@@ -14,7 +14,7 @@ from caffe_minecraft_hdf5 import MinecraftNet
 from FeatureNet import FeatureNet
 
 MEMORY_SIZE = 1000000
-CNN_PARAMS = {"input_size":50, "output_size":18}
+CNN_PARAMS = {"input_size":30, "output_size":18}
 STARTING_FRAMES = 100
 EPSILON = 0.1
 GAMMA = 0.99
@@ -107,17 +107,15 @@ class CNNPlayer(Player):
         # print("LABELS:", labels)
         #self.network.set_input_data(inputs, labels)
         self.network.set_train_input_data(inputs, labels)
-        self.network.train(1) # train for a single iteration
+        self.network.train(BATCH_TRAINING_ITERATIONS) # train for a single iteration
 
     
     # Receive the agent's reward from its previous Action along with
     # a Frame screenshot of the current game state
     def getDecision(self, current_frame):
-        
+       
         features = self.ae_network.encodeNumpyArray(current_frame.pixels)
-        
-        if self.game.world_counter % 10 == 0:
-            print "*" * 40, self.game.world_counter, "%" * 40
+
         #if self.previous_reward != 0:
         #    print "GOT POINTS:", self.previous_reward
         self.total_score += self.previous_reward
@@ -160,7 +158,7 @@ class CNNPlayer(Player):
         # print(self.replay_memory.print_storage(0, 100))
         self.previous_seq = self.current_seq
 
-        if self.game.world_counter > STARTING_FRAMES and self.game.world_counter % 40 == 0:
+        if self.game.world_counter > STARTING_FRAMES and self.game.world_counter % BATCH_TRAINING_FREQUENCY == 0:
             print("TRAINING MINIBATCH")
             self.trainMinibatch()
                 

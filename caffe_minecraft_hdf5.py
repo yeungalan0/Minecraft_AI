@@ -10,21 +10,13 @@ class MinecraftNet:
     
     def __init__(self, model_filename=''):
         self.model_filename = model_filename
-        #self.train_net, self.test_net = self.make_nets()
-        caffe.set_mode_cpu()
+        #caffe.set_mode_cpu()   #uncomment if no GPU
         self.solver = caffe.SGDSolver(REINFORCEMENT_PROTO)
         if self.model_filename != '':
             self.load_model(self.model_filename)
         else:
-            self.model_filename = AUTOENCODER_MODEL
-            self.solver.net.save(self.model_filename)
-
-        
-
-        #self.default_data_init()
-        #print (self.solver.net.blobs['data'].shape[0])
-        #print([(k, v.data.shape) for k, v in self.solver.net.blobs.items()])
-        
+            self.model_filename = REINFORCEMENT_MODEL
+            self.solver.net.save(self.model_filename)      
         
     def load_model(self, path_to_model):
         #print ("loading model: ", path_to_model)

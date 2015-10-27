@@ -389,7 +389,7 @@ class Window(pyglet.window.Window):
         """
         self.world_counter += 1
 
-        if self.world_counter % 100 == 0:
+        if self.world_counter % WORLD_COUNTER_DISPLAY_FREQUENCY == 0:
             print "FRAME #" + str(self.world_counter)
 
         
@@ -413,7 +413,7 @@ class Window(pyglet.window.Window):
             self._update(dt / m)
 
         #self.player.update()
-        if self.world_counter % 4 == 0:
+        if self.world_counter % DECISION_FREQUENCY == 0:
             
             PIXEL_BYTE_SIZE = 1  # Use 1 for grayscale, 4 for RGBA
             

@@ -37,10 +37,8 @@ class FeatureNet(object):
         return self.net.blobs['encode4'].data[...]
 
 
-
-
 if __name__=="__main__":
     fn = FeatureNet()
     #print(fn.encodeImage("../screenshots/test2.png"))
-    print(fn.encodeHDF5("dataset.hdf5", 15483))
+    print(fn.encodeHDF5("datasets/dataset.hdf5", 56423))
     
