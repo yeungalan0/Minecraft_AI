@@ -13,6 +13,9 @@ plt.rcParams['image.cmap'] = 'gray'
 #plt.interactive(True)
 
 WINDOW_SIZE = 32
+TEST_PROTO = '../protos/autoencoder_tester.prototxt'
+MODEL_FILE = '../models/autoencoder/autoencoder_model_iter_4000.caffemodel'
+DATASET = '../datasets/dataset.hdf5'
 
 # take an array of shape (n, height, width) or (n, height, width, channels)
 # and visualize each (height, width) thing in a grid of size approx. sqrt(n) by sqrt(n)
@@ -37,18 +40,16 @@ def vis_square(data, padsize=1, padval=0):
 
 
 caffe.set_mode_cpu()
-net = caffe.Net('small_autoencoder_tester.prototxt',
-                'autoencoder_model_iter_8000.caffemodel',
-                caffe.TEST)
+net = caffe.Net(TEST_PROTO, MODEL_FILE, caffe.TEST)
 
 for k, v in net.params.items():
     print(k, v[0].data.shape)
 
 
-h5 = h5py.File('dataset.hdf5', 'r')
+h5 = h5py.File(DATASET, 'r')
 dataset = h5['data']
 
-my_image = np.array(dataset[78663], dtype=np.float32)
+my_image = np.array(dataset[88], dtype=np.float32)
 #my_image *= (1/255.)
 print("INPUT:", my_image)
 
@@ -78,14 +79,8 @@ plt.imsave("output.png", output_array)
 plt.imsave("input.png", my_image)
 
 
-filters = net.params['encoder'][0].data
-#filters = net.blobs['encode1'].data[0, :36]
-print(filters.shape)
-#filters = filters[:, np.newaxis, :, :]
-filters = filters.reshape((50, 32, 32))
+# filters = net.params['encode1'][0].data
+# print(filters.shape)
+# filters = filters.reshape((1000, 32, 32))
+# vis_square(filters)
 
-#print(filters.shape)
-#print(filters.shape)
-vis_square(filters)
-#vis_square(filters.transpose(0, 2, 3, 1))
-#print("DONE")

@@ -8,7 +8,7 @@ layer {
   }
   hdf5_data_param {
     source: "datasets/dataset.txt"
-    batch_size: 1000
+    batch_size: 5000
   }
 }
 layer {
