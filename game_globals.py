@@ -20,8 +20,11 @@ TICKS_PER_SEC = 60
 # Number of Experiences to train on
 TRAINING_BATCH_SIZE = 128
 
+# Agent's turning speed (per tick)
+AGENT_ROTATION_SPEED = 0.25
+
 # How often (in getDecision calls) to start a minibatch of training
-BATCH_TRAINING_FREQUENCY = 16
+BATCH_TRAINING_FREQUENCY = 4 * DECISION_FREQUENCY
 
 # Number of iterations of training per minibatch (we think DeepMind is 1)
 BATCH_TRAINING_ITERATIONS = 1

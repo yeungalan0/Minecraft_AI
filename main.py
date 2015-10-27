@@ -397,7 +397,7 @@ class Window(pyglet.window.Window):
             self.player.saveDataset()
             print "Game Over!\tFINAL SCORE:", self.player.total_score
             pyglet.app.exit()
-            sys.exit(1)
+            #sys.exit(1)
 
         
         self.model.process_queue()

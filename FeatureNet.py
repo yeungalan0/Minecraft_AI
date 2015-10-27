@@ -11,7 +11,7 @@ from game_globals import *
 class FeatureNet(object):
 
     def __init__(self, proto_filename=AUTOENCODER_TEST_PROTO, model_filename=AUTOENCODER_MODEL):
-        caffe.set_mode_cpu()
+        #caffe.set_mode_cpu()
         self.net = caffe.Net(proto_filename, model_filename, caffe.TEST)
 
     def encodeHDF5(self, hdf5filename, index):

@@ -14,7 +14,6 @@ from caffe_minecraft_hdf5 import MinecraftNet
 from FeatureNet import FeatureNet
 
 MEMORY_SIZE = 1000000
-CNN_PARAMS = {"input_size":30, "output_size":18}
 STARTING_FRAMES = 100
 EPSILON = 0.1
 GAMMA = 0.99
@@ -29,7 +28,7 @@ class CNNPlayer(Player):
         self.replay_memory = ReplayMemory()
         
         # Initialize the convolutional neural network
-        self.network = MinecraftNet()   #initCNN(CNN_PARAMS)
+        self.network = MinecraftNet()   
         self.ae_network = FeatureNet()
 
         if agent_filepath != "":
@@ -48,11 +47,31 @@ class CNNPlayer(Player):
     def initActionMap(self):
         actions = []
         
-        # for now do a hack to populate this map with all the same actions
-        for i in range(CNN_PARAMS["output_size"]/2):
-            actions.append(Action.Action(False, 0.0, 0.25, 0, 0))
-        for i in range(CNN_PARAMS["output_size"]/2, CNN_PARAMS["output_size"]):
-            actions.append(Action.Action(True, 0.0, 0.25, 1, 0))
+        # Populate with all 18 legal actions
+        # (break_block, updown_rot, leftright_rot, forwardback, leftright)
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=0))
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=1, leftright=0))
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=0.0, forwardback=-1, leftright=0))  
+        
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=AGENT_ROTATION_SPEED, forwardback=0, leftright=0))
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=AGENT_ROTATION_SPEED, forwardback=1, leftright=0))
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=AGENT_ROTATION_SPEED, forwardback=-1, leftright=0))
+
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=-AGENT_ROTATION_SPEED, forwardback=0, leftright=0))
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=-AGENT_ROTATION_SPEED, forwardback=1, leftright=0))
+        actions.append(Action.Action(False, updown_rot=0.0, leftright_rot=-AGENT_ROTATION_SPEED, forwardback=-1, leftright=0))    
+
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=0.0, forwardback=0, leftright=0))
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=0.0, forwardback=1, leftright=0))
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=0.0, forwardback=-1, leftright=0))  
+        
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=AGENT_ROTATION_SPEED, forwardback=0, leftright=0))
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=AGENT_ROTATION_SPEED, forwardback=1, leftright=0))
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=AGENT_ROTATION_SPEED, forwardback=-1, leftright=0))
+
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=-AGENT_ROTATION_SPEED, forwardback=0, leftright=0))
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=-AGENT_ROTATION_SPEED, forwardback=1, leftright=0))
+        actions.append(Action.Action(True, updown_rot=0.0, leftright_rot=-AGENT_ROTATION_SPEED, forwardback=-1, leftright=0))  
         
         return actions
     

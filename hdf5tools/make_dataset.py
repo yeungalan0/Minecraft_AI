@@ -21,8 +21,8 @@ input_array = input_array[:, np.newaxis, np.newaxis, :]
 label_array = np.ones((1, OUTPUT_VECTOR_SIZE), dtype=np.float64)
 label_array = label_array[:, np.newaxis, np.newaxis, :]
 
-print(input_array.shape)
-print(label_array.shape)
+#print(input_array.shape)
+#print(label_array.shape)
 
 # Write out the inputs and targets in hdf5 format
 f = h5py.File(hdf5_dataset_filename, 'w')
@@ -36,3 +36,4 @@ t = open(txt_dataset_filename, 'w')
 t.write("%s\n" % hdf5_dataset_filename)
 t.close()
 
+print("new temp hdf5 dataset created in %s" % hdf5_dataset_filename)

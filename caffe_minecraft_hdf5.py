@@ -77,8 +77,6 @@ class MinecraftNet:
         label_array = label_array[:, np.newaxis, np.newaxis, :]
 
         # Write out the inputs and targets in hdf5 format
-        #image_size = WINDOW_SIZE # THESE SHOULD BE GLOBALS SOMEWHERE
-        #output_vector_length = 64
         hdf5_dataset_filename = 'datasets/tmp_training_dataset.hdf5'
 
         f = h5py.File(hdf5_dataset_filename, 'w')
