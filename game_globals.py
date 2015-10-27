@@ -13,6 +13,12 @@ TICKS_PER_SEC = 60
 
 TRAINING_BATCH_SIZE = 128
 
+REINFORCEMENT_PROTO = 'protos/reinforcement_solver.prototxt'
+
+AUTOENCODER_PROTO = 'protos/autoencoder_solver.prototxt'
+AUTOENCODER_TEST_PROTO = 'protos/autoencoder_tester.prototxt'
+AUTOENCODER_MODEL = 'models/autoencoder/current.caffemodel'
+
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16
 

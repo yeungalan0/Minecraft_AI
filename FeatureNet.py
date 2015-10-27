@@ -10,7 +10,7 @@ from game_globals import *
 
 class FeatureNet(object):
 
-    def __init__(self, proto_filename='autoencoder/autoencoder_tester.prototxt', model_filename='autoencoder/autoencoder_model_iter_4250.caffemodel'):
+    def __init__(self, proto_filename=AUTOENCODER_TEST_PROTO, model_filename=AUTOENCODER_MODEL):
         caffe.set_mode_cpu()
         self.net = caffe.Net(proto_filename, model_filename, caffe.TEST)
 

@@ -9,16 +9,12 @@ from pyglet import image
 from pyglet.gl import *
 from pyglet.graphics import TextureGroup
 from pyglet.window import key, mouse
-
 from PIL import Image
 
 from Player import Player
 from CNNPlayer import CNNPlayer
 from DataGatheringPlayer import DataGatheringPlayer
-
-
 from Frame import Frame
-
 from game_globals import *
 
 
@@ -398,7 +394,6 @@ class Window(pyglet.window.Window):
 
         
         if self.world_counter >= self.max_frames:
-            print "Saving frame dataset"
             self.player.saveDataset()
             print "Game Over!\tFINAL SCORE:", self.player.total_score
             pyglet.app.exit()
@@ -712,21 +707,19 @@ def opengl_setup():
     glPixelTransferf(GL_BLUE_SCALE, 0.114)
 
 
-def main():
+def main(player, world, number_frames):
     window = Window(width=WINDOW_SIZE, height=WINDOW_SIZE, caption='MindCraft', resizable=True, vsync=False)
+    player.setGame(window)
     
-    #p = Player()
-    #p = CNNPlayer()
-    p = DataGatheringPlayer()
-    p.setGame(window)
-    
-    window.set_player(p)
-    window.model.loadMap("maps/test.txt")
-    window.set_game_frame_limit(2000000)
+    window.set_player(player)
+    window.model.loadMap(world)
+    window.set_game_frame_limit(number_frames)
 
     opengl_setup()
     pyglet.app.run()
 
 
 if __name__ == '__main__':
-    main()
+    world = "maps/test.txt"
+    total_game_frames = 200
+    main(CNNPlayer(), world, total_game_frames)

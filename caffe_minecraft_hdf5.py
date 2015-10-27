@@ -12,11 +12,11 @@ class MinecraftNet:
         self.model_filename = model_filename
         #self.train_net, self.test_net = self.make_nets()
         caffe.set_mode_cpu()
-        self.solver = caffe.SGDSolver('minecraft_solver.prototxt')
+        self.solver = caffe.SGDSolver(REINFORCEMENT_PROTO)
         if self.model_filename != '':
             self.load_model(self.model_filename)
         else:
-            self.model_filename = "snapshots/current.caffemodel"
+            self.model_filename = AUTOENCODER_MODEL
             self.solver.net.save(self.model_filename)
 
         
@@ -31,7 +31,7 @@ class MinecraftNet:
         self.solver.net.copy_from(path_to_model)
         
     def reload_net(self):
-        self.solver = caffe.SGDSolver('minecraft_solver.prototxt')
+        self.solver = caffe.SGDSolver(REINFORCEMENT_PROTO)
         self.load_model(self.model_filename)
         
 
@@ -87,7 +87,9 @@ class MinecraftNet:
         # Write out the inputs and targets in hdf5 format
         #image_size = WINDOW_SIZE # THESE SHOULD BE GLOBALS SOMEWHERE
         #output_vector_length = 64
-        f = h5py.File('mydataset.h5', 'w')
+        hdf5_dataset_filename = 'datasets/tmp_training_dataset.hdf5'
+
+        f = h5py.File(hdf5_dataset_filename, 'w')
         f.create_dataset('data', (TRAINING_BATCH_SIZE, 1, 1, FEATURE_VECTOR_SIZE), data=input_array, dtype='f8')
         f.create_dataset('label', (TRAINING_BATCH_SIZE, 1, 1, OUTPUT_VECTOR_SIZE), data=label_array, dtype='f8')
         f.close()

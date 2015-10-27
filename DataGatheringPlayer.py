@@ -11,13 +11,15 @@ import h5py
 
 class DataGatheringPlayer(Player):
 
-    def __init__(self, agent_filepath=""):
+    def __init__(self, dataset_filepath=""):
         Player.__init__(self)
-        self.h5 = h5py.File('dataset.hdf5', 'w')
-        self.dataset = self.h5.create_dataset("data", (10, WINDOW_SIZE, WINDOW_SIZE), maxshape=(None, WINDOW_SIZE, WINDOW_SIZE))
+        self.dataset_filepath = dataset_filepath
+        self.h5 = h5py.File(dataset_filepath, 'w')
+        self.dataset = self.h5.create_dataset("data", (16, WINDOW_SIZE, WINDOW_SIZE), maxshape=(None, WINDOW_SIZE, WINDOW_SIZE))
         self.dataset_index = 0
     
     def saveDataset(self):
+        print("Saving dataset to ", self.dataset_filepath)
         self.dataset.resize((self.dataset_index, WINDOW_SIZE, WINDOW_SIZE))
         self.h5.close()
     

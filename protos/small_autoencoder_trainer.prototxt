@@ -1,0 +1,144 @@
+name: "MinecraftAutoencoder"
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  include {
+    phase: TRAIN
+  }
+  hdf5_data_param {
+    source: "datasets/dataset.txt"
+    batch_size: 5000
+  }
+}
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "data"
+  include {
+    phase: TEST
+    stage: "test-on-train"
+
+  }
+  hdf5_data_param {
+    source: "datasets/dataset.txt"
+    batch_size: 10
+  }
+}
+
+#layer {
+#  name: "flatdata"
+#  type: "Flatten"
+#  bottom: "data"
+#  top: "flatdata"
+#}
+
+#layer {
+#  name: "dropper"
+#  type: "Dropout"
+#  bottom: "data"
+#  top: "droppeddata"
+#  dropout_param {
+#    dropout_ratio: 0.50
+#  }
+#}
+
+
+
+
+layer {
+  name: "encoder"
+  type: "InnerProduct"
+  bottom: "data"
+  top: "encodeout"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 50
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      #value: 1
+    }
+  }
+}
+
+layer {
+  name: "encode1neuron"
+  type: "Sigmoid"
+  bottom: "encodeout"
+  top: "encodeneuronout"
+}
+
+#layer {
+#  name: "relu1"
+#  type: "ReLU"
+#  bottom: "encodeout"
+#  top: "encodeneuronout"
+#}
+
+#layer {
+#  name: "tan1"
+#  type: "TanH"
+#  bottom: "encodeout"
+#  top: "encodeneuronout"
+#}
+
+layer {
+  name: "decoder"
+  type: "InnerProduct"
+  bottom: "encodeneuronout"
+  top: "decodeout"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 1024
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      #value: 1
+    }
+  }
+}
+
+layer {
+  name: "decodeneuron"
+  type: "Sigmoid"
+  bottom: "decodeout"
+  top: "decodeneuronout"
+}
+
+#layer {
+#  name: "relu2"
+#  type: "ReLU"
+#  bottom: "decodeout"
+#  top: "decodeneuronout"
+#}
+
+#layer {
+#  name: "tan2"
+#  type: "TanH"
+#  bottom: "decodeout"
+#  top: "decodeneuronout"
+#}
+
+layer {
+  name: "loss"
+  type: "EuclideanLoss"
+  bottom: "decodeneuronout"
+  bottom: "data"
+  top: "l2_error"
+  #loss_weight: 1
+}

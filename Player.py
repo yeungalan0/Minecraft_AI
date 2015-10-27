@@ -228,3 +228,8 @@ class Player:
         a = Action.getRandomAction()
         self.performAction(a)
         
+    def saveDataset(self):
+        # Nothing to save for superclass
+        pass
+    
+        
