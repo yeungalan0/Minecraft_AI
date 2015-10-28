@@ -3,16 +3,21 @@ import caffe
 import numpy as np
 from caffe import layers as L, params as P, to_proto
 from caffe.proto import caffe_pb2
+import os
 import h5py
 from game_globals import *
+
 
 class MinecraftNet:
     
     def __init__(self, model_filename=''):
-        self.model_filename = model_filename
         #caffe.set_mode_cpu()   #uncomment if no GPU
         self.solver = caffe.SGDSolver(REINFORCEMENT_PROTO)
-        if self.model_filename != '':
+               
+        # Model already exists, then load it
+        # Otherwise, save a new, random model
+        if model_filename != '' and os.path.exists(model_filename):
+            self.model_filename = model_filename
             self.load_model(self.model_filename)
         else:
             self.model_filename = REINFORCEMENT_MODEL
@@ -25,8 +30,9 @@ class MinecraftNet:
     def reload_net(self):
         self.solver = caffe.SGDSolver(REINFORCEMENT_PROTO)
         self.load_model(self.model_filename)
-        
+        #print("NETWORK PARAMS: %s" % str(self.solver.net.params['ip1'][0].data[...]))
 
+    
     def train(self, itrs):
         self.reload_net()
         self.solver.step(itrs)

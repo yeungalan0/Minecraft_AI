@@ -52,9 +52,12 @@ class Player:
         
         self.previous_reward = 0.0
         
+        self.actions_performed = 0
+
+        
         self.rewards = {
             "GRASS":1000,
-            "STONE":0
+            "STONE":-10
         }
         
         self.total_score = 0
@@ -200,6 +203,8 @@ class Player:
     # Perform an action by setting the agent's movement fields to the values from the action object
     def performAction(self, a):
         
+        self.actions_performed += 1
+        
         # Initialize a new reward for this current action
         # There is a set cost of 1 for each move
         reward = 0
@@ -227,7 +232,7 @@ class Player:
         a = Action.getRandomAction()
         self.performAction(a)
         
-    def saveDataset(self):
+    def save(self):
         # Nothing to save for superclass
         pass
     

@@ -6,13 +6,12 @@ from CNNPlayer import CNNPlayer
 from generateWorld import *
 from main import *
 
-MAX_FRAMES_PER_GAME = 10000
+MAX_FRAMES_PER_GAME = 3600  # one minute of play
 
 # Train an agent for a single episode
 def trainEpisode(agent_filename="", episode_number=1):
     print "RUNNING EPISODE #%d" % episode_number
 
-    # Load the existing agent as a CNNPlayer
     agent = CNNPlayer(agent_filename)
 
     # create a new map

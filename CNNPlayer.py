@@ -12,12 +12,17 @@ from Experience import Experience
 from ReplayMemory import ReplayMemory
 from caffe_minecraft_hdf5 import MinecraftNet
 from FeatureNet import FeatureNet
+from LogFile import LogFile
+import os.path
+import cPickle
 
 MEMORY_SIZE = 1000000
 STARTING_FRAMES = 100
-EPSILON = 0.1
 GAMMA = 0.99
 FRAMES_PER_SEQ = 4
+STARTING_EPSILON = 0.1
+EPSILON_UPDATE = 1.001
+MAX_EPSILON = 0.9
 
 class CNNPlayer(Player):
 
@@ -25,14 +30,24 @@ class CNNPlayer(Player):
         Player.__init__(self)
 
         # Create the experience memory database
-        self.replay_memory = ReplayMemory()
+        if not os.path.exists(REPLAY_MEMORY_FILENAME):
+            self.replay_memory = ReplayMemory()
+        else:
+            self.replay_memory = cPickle.load(open(REPLAY_MEMORY_FILENAME, 'r'))
         
         # Initialize the convolutional neural network
-        self.network = MinecraftNet()   
+        self.network = MinecraftNet(agent_filepath)   
         self.ae_network = FeatureNet()
+        
+        # Probability of selecting non-random action
+        self.epsilon = STARTING_EPSILON
+        
+        # The total number of frames this agent has been trained on
+        # through all the minibatch training
+        self.frames_trained = 0
 
-        if agent_filepath != "":
-            self.network.load_model(agent_filepath)
+        # Load old epsilon and frames learned values
+        self.load()
             
         self.cnn_action_map = self.initActionMap()
         
@@ -40,6 +55,11 @@ class CNNPlayer(Player):
         self.current_seq = None
         self.previous_seq = None
         self.previous_action = None
+        
+        # Event logging
+        self.log = LogFile("run.log", True)
+        #self.log.logMessage("INITIAL NETWORK PARAMS: %s" % str(self.network.solver.net.params['ip1'][0].data[...]))
+
         
         
     # Create a map of all the CNN's legal actions
@@ -79,16 +99,18 @@ class CNNPlayer(Player):
         for i in range(len(self.cnn_action_map)):
             if action == self.cnn_action_map[i]:
                 return i
-        print("ACTION %s NOT FOUND IN ACTION MAP" % str(action))
+        self.log.logError("ACTION %s NOT FOUND IN ACTION MAP" % str(action))
         sys.exit(1)
     
     
     def sequenceForward(self, seq):
         cnn_input = seq.toCNNInput()
-        return self.network.forward(cnn_input)
+        output = self.network.forward(cnn_input)
+        return output
     
     def pickBestAction(self, seq):
         cnn_outputs = self.sequenceForward(seq)
+        self.log.logMessage("REINFORCEMENT NET OUTPUT: " + str(cnn_outputs))
         
         max_output_index = 0
         max_output = cnn_outputs[0]
@@ -97,14 +119,39 @@ class CNNPlayer(Player):
                 max_output = cnn_outputs[i]
                 max_output_index = i
                 
+        self.log.logMessage("BEST ACTION CHOSEN: %s" % str(self.cnn_action_map[max_output_index]))
         return self.cnn_action_map[max_output_index]
     
     def pickRandomAction(self):
         return random.choice(self.cnn_action_map)
+    
+    def load(self):
+        if os.path.exists(CNNPLAYER_SAVE_FILENAME):
+            f = open(CNNPLAYER_SAVE_FILENAME, 'r')
+            tokens = f.read().split()
+            self.epsilon, self.frames_trained = float(tokens[0]), int(tokens[1])
+            f.close()
+    
+    
+    def save(self):
+        # Save the replay memory as a pickled file
+        o = open(REPLAY_MEMORY_FILENAME, 'w')
+        cPickle.dump(self.replay_memory, o)
+        o.close()
+        
+        o = open(CNNPLAYER_SAVE_FILENAME, 'w')
+        o.write("%.8f %d" % (self.epsilon, self.frames_trained))
+        o.close()
+
+        # Log the last network weights        
+        #self.log.logMessage("FINAL NETWORK PARAMS: %s" % str(self.network.solver.net.params['ip1'][0].data[...]))
+        
         
         
     # Train the agent's CNN on a minibatch of Experiences    
     def trainMinibatch(self):
+        self.log.logMessage("TRAINING MINIBATCH")
+        self.frames_trained += TRAINING_BATCH_SIZE
         experiences = self.replay_memory.get_random(TRAINING_BATCH_SIZE)
         inputs = []
         labels = []
@@ -132,22 +179,19 @@ class CNNPlayer(Player):
     # Receive the agent's reward from its previous Action along with
     # a Frame screenshot of the current game state
     def getDecision(self, current_frame):
+        self.log.logMessage("DECISION #%d in GAME FRAME #%d" % (self.actions_performed, self.game.world_counter))
+        self.log.logMessage("TRAINED ON %d FRAMES" % (self.frames_trained))
        
         features = self.ae_network.encodeNumpyArray(current_frame.pixels)
+        #self.log.logMessage("Current frame yields features: %s" % str(features))
 
-        #if self.previous_reward != 0:
-        #    print "GOT POINTS:", self.previous_reward
+        if self.previous_reward != 0:
+            self.log.logMessage("GOT REWARD: %d" % self.previous_reward)
         self.total_score += self.previous_reward
-        
-        # Luminance/scale/frame limiting/etc. preprocessing
-        #processed_frame = current_frame.preprocess()
-                
-        # Should I make a random move?
-        r = random.random()
-                    
+                        
         # First frame of game
-        # print("PREVIOUS SEQUENCE: " + str(self.previous_seq) + "\n")
-        if self.previous_seq == None:
+        if self.actions_performed == 0:
+            self.actions_performed += 1
             self.previous_seq = Sequence(features)
             # print("FRAME SEQUENCE: {0}".format(self.previous_seq))
             curr_action = self.pickRandomAction()
@@ -155,11 +199,15 @@ class CNNPlayer(Player):
             self.previous_action = curr_action
             # print("FIRST SEQUENCE: {0}".format(self.previous_seq))
             return
+        
+        
+        # Should I make a random move?
+        r = random.random()
             
         # Add on the current frame to the current sequence
         self.current_seq = self.previous_seq.createNewSequence(features)
 
-        if r < EPSILON or not self.current_seq.isFull():
+        if r > self.epsilon or self.actions_performed < 4: #not self.current_seq.isFull():
             curr_action = self.pickRandomAction()
         else:
             # Run the CNN and pick the max output action
@@ -171,17 +219,18 @@ class CNNPlayer(Player):
         # Actually perform the action in the game
         self.performAction(curr_action)
             
-        # The first time through there is no previous Sequence, so just add the first Frame
         new_experience = Experience(self.previous_seq, self.previous_action, self.previous_reward, self.current_seq)
         self.replay_memory.store(new_experience)
-        # print(self.replay_memory.print_storage(0, 100))
         self.previous_seq = self.current_seq
 
         if self.game.world_counter > STARTING_FRAMES and self.game.world_counter % BATCH_TRAINING_FREQUENCY == 0:
-            print("TRAINING MINIBATCH")
             self.trainMinibatch()
                 
         # Remember the chosen Action since it will be required for the next iteration
         self.previous_action = curr_action
+        
+        if self.epsilon < MAX_EPSILON:
+            self.epsilon *= EPSILON_UPDATE
+            self.log.logMessage("UPDATED EPSILON: %.5f" % self.epsilon)
 
 

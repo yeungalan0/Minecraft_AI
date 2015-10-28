@@ -1,6 +1,4 @@
-
 import math
-
 
 # The width and height of the game window (always square)
 WINDOW_SIZE = 32
@@ -18,10 +16,13 @@ OUTPUT_VECTOR_SIZE = 18
 TICKS_PER_SEC = 60
 
 # Number of Experiences to train on
-TRAINING_BATCH_SIZE = 128
+TRAINING_BATCH_SIZE = 1024
 
 # Agent's turning speed (per tick)
 AGENT_ROTATION_SPEED = 0.25
+
+# Run each episode for this many game ticks
+MAX_FRAMES_PER_GAME = 3600  # equivalent to one minute of normal, 60fps play
 
 # How often (in getDecision calls) to start a minibatch of training
 BATCH_TRAINING_FREQUENCY = 4 * DECISION_FREQUENCY
@@ -38,6 +39,9 @@ REINFORCEMENT_MODEL = 'models/reinforcement/current.caffemodel'
 AUTOENCODER_PROTO = 'protos/autoencoder_solver.prototxt'
 AUTOENCODER_TEST_PROTO = 'protos/autoencoder_tester.prototxt'
 AUTOENCODER_MODEL = 'models/autoencoder/current.caffemodel'
+
+CNNPLAYER_SAVE_FILENAME = "cnnplayer.dat"
+REPLAY_MEMORY_FILENAME = "replay.pick"
 
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16

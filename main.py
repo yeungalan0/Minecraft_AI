@@ -394,8 +394,8 @@ class Window(pyglet.window.Window):
 
         
         if self.world_counter >= self.max_frames:
-            self.player.saveDataset()
-            print "Game Over!\tFINAL SCORE:", self.player.total_score
+            self.player.save()
+            self.player.log.logMessage("Game Over!\tFINAL SCORE: %d" % self.player.total_score)
             pyglet.app.exit()
             #sys.exit(1)
 

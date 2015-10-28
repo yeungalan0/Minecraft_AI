@@ -41,7 +41,7 @@ class Action(object):
  
 
     def __str__(self):
-        return "Action: %.4f %.4f %d %d" % (self.updown_rotation, self.leftright_rotation, self.forwardbackward_walk, self.leftright_walk)
+        return "Action: " + str(self.break_block) + " %.4f %.4f %d %d" % (self.updown_rotation, self.leftright_rotation, self.forwardbackward_walk, self.leftright_walk)
 
 
 
